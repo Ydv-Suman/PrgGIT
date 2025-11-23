@@ -17,11 +17,11 @@ PrgGIT/
 │   │
 │   ├── service/
 │   │   └── EmployeeSearchService.java  # Loads lists, builds queries, searches DB
-│   │
-│   ├── ui/
-│   │   └── EmployeeSearchFrame.java    # Main GUI frame
-│   │
-│   └── Main.java                       #  Starts the program
+│
+├── ui/
+│   └── EmployeeSearchFrame.java    # Main GUI frame
+│
+│── Main.java                       #  Starts the program
 │
 └── README.md
 ```
