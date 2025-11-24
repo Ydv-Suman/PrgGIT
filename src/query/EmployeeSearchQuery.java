@@ -1,4 +1,4 @@
-package src.service;
+package src.query;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Objects;
 
-public class EmployeeSearchService {
+public class EmployeeSearchQuery {
 
     Statement stmt;
     ResultSet result;
@@ -28,7 +28,7 @@ public class EmployeeSearchService {
             result = stmt.executeQuery(query);
 
             while (result.next()) {
-                departments.add(result.getString("DepartmentName"));
+                departments.add(result.getString("Dname"));
             }
         } catch (Exception e) {
             e.getStackTrace();
@@ -65,7 +65,7 @@ public class EmployeeSearchService {
             result = stmt.executeQuery(query);
 
             while (result.next()) {
-                projects.add(result.getString("DepartmentName"));
+                projects.add(result.getString("Pname"));
             }
         } catch (Exception e) {
             e.getStackTrace();

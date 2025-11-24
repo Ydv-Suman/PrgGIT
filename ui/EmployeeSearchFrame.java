@@ -3,15 +3,12 @@
  * Description: This is the framework for the database program. Additional requirements and functionality
  *    are to be built by you and your group.
  */
-
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import database.DatabaseManager;
-import query.EmployeeSearchQuery;
+import src.database.DatabaseManager;
+import src.query.EmployeeSearchQuery;
 
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -24,6 +21,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JOptionPane;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
 
 public class EmployeeSearchFrame extends JFrame {
 
@@ -35,9 +37,14 @@ public class EmployeeSearchFrame extends JFrame {
 	private JList<String> lstProject;
 	private DefaultListModel<String> project = new DefaultListModel<String>();
 	private JTextArea textAreaEmployee;
+	private JScrollPane scrollPaneDepartment;
+	private JScrollPane scrollPaneProject;
+	private JScrollPane scrollPaneEmployee;
+	private JCheckBox chckbxNotDept;
+	private JCheckBox chckbxNotProject;
 
 	private EmployeeSearchQuery searchQuery;
-	private DatabaseManager dbManager;
+	private Connection connection;
 	
     /**
      * Launch the application.
@@ -62,7 +69,6 @@ public class EmployeeSearchFrame extends JFrame {
 	public EmployeeSearchFrame() {
 
 		searchQuery = new EmployeeSearchQuery();
-		dbManager = new DatabaseManager();
 
 		
 		setTitle("Employee Search");
@@ -109,25 +115,31 @@ public class EmployeeSearchFrame extends JFrame {
 		lblProject.setBounds(255, 63, 47, 14);
 		contentPane.add(lblProject);
 		
+		// Department list with scroll pane
+		lstDepartment = new JList<String>(new DefaultListModel<String>());
+		lstDepartment.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lstDepartment.setModel(department);
+		lstDepartment.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		scrollPaneDepartment = new JScrollPane(lstDepartment);
+		scrollPaneDepartment.setBounds(36, 84, 172, 40);
+		contentPane.add(scrollPaneDepartment);
+		
+		// Project list with scroll pane
 		lstProject = new JList<String>(new DefaultListModel<String>());
 		lstProject.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lstProject.setModel(project);
-		lstProject.setBounds(225, 84, 150, 42);
-		contentPane.add(lstProject);
+		lstProject.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		scrollPaneProject = new JScrollPane(lstProject);
+		scrollPaneProject.setBounds(225, 84, 150, 42);
+		contentPane.add(scrollPaneProject);
 		
-		JCheckBox chckbxNotDept = new JCheckBox("Not");
+		chckbxNotDept = new JCheckBox("Not");
 		chckbxNotDept.setBounds(71, 133, 59, 23);
 		contentPane.add(chckbxNotDept);
 		
-		JCheckBox chckbxNotProject = new JCheckBox("Not");
+		chckbxNotProject = new JCheckBox("Not");
 		chckbxNotProject.setBounds(270, 133, 59, 23);
 		contentPane.add(chckbxNotProject);
-		
-		lstDepartment = new JList<String>(new DefaultListModel<String>());
-		lstDepartment.setBounds(36, 84, 172, 40);
-		contentPane.add(lstDepartment);
-		lstDepartment.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lstDepartment.setModel(department);
 		
 		JLabel lblEmployee = new JLabel("Employee");
 		lblEmployee.setFont(new Font("Times New Roman", Font.BOLD, 12));
@@ -137,7 +149,7 @@ public class EmployeeSearchFrame extends JFrame {
 		JButton btnSearch = new JButton("Search");
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textAreaEmployee.setText("John Smith\nFranklin Wong");
+				searchEmployees();
 			}
 		});
 		btnSearch.setBounds(80, 276, 89, 23);
@@ -146,44 +158,143 @@ public class EmployeeSearchFrame extends JFrame {
 		JButton btnClear = new JButton("Clear");
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textAreaEmployee.setText("");
+				clearSelections();
 			}
 		});
 		btnClear.setBounds(236, 276, 89, 23);
 		contentPane.add(btnClear);
 		
+		// Employee text area with scroll pane
 		textAreaEmployee = new JTextArea();
-		textAreaEmployee.setBounds(36, 197, 339, 68);
-		contentPane.add(textAreaEmployee);
+		textAreaEmployee.setEditable(false);
+		scrollPaneEmployee = new JScrollPane(textAreaEmployee);
+		scrollPaneEmployee.setBounds(36, 197, 339, 68);
+		contentPane.add(scrollPaneEmployee);
 	}
 
 	/**
 	 * Loads department and project lists from database
 	 */
 	private void fillListsFromDatabase() {
-
 	    String dbName = txtDatabase.getText().trim();
 
 	    if (dbName.isEmpty()) {
-	        textAreaEmployee.setText("Enter a database name first.");
+	        JOptionPane.showMessageDialog(this, "Please enter a database name first.", 
+	                "Database Error", JOptionPane.ERROR_MESSAGE);
 	        return;
 	    }
 
-	    department.clear();
-	    project.clear();
-
-	    for (String d : searchQuery.loadDepartments(dbName)) {
-	        department.addElement(d);
+	    // Close previous connection if exists
+	    if (connection != null) {
+	        try {
+	            DatabaseManager.closeconnection();
+	        } catch (Exception e) {
+	            // Ignore
+	        }
 	    }
 
-	    for (String p : searchQuery.loadProjects(dbName)) {
-	        project.addElement(p);
+	    try {
+	        // Get database connection
+	        connection = DatabaseManager.getConnection(dbName);
+	        
+	        // Clear existing lists
+	        department.clear();
+	        project.clear();
+
+	        // Load departments using existing method
+	        List<String> departments = searchQuery.deparmenteNames(connection);
+	        for (String d : departments) {
+	            department.addElement(d);
+	        }
+
+	        // Load projects using existing method
+	        List<String> projects = searchQuery.projectNames(connection);
+	        for (String p : projects) {
+	            project.addElement(p);
+	        }
+
+	        if (department.isEmpty() && project.isEmpty()) {
+	            textAreaEmployee.setText("Database opened, but no data found.\nCheck DB name or tables.");
+	        } else {
+	            textAreaEmployee.setText("Lists loaded successfully.");
+	        }
+	        
+	    } catch (SQLException e) {
+	        JOptionPane.showMessageDialog(this, 
+	                "Database could not be opened.\nError: " + e.getMessage(), 
+	                "Database Error", JOptionPane.ERROR_MESSAGE);
+	        textAreaEmployee.setText("Database connection failed.");
+	    } catch (Exception e) {
+	        JOptionPane.showMessageDialog(this, 
+	                "Database could not be opened.\nError: " + e.getMessage(), 
+	                "Database Error", JOptionPane.ERROR_MESSAGE);
+	        textAreaEmployee.setText("Database connection failed.");
+	    }
+	}
+
+	/**
+	 * Searches for employees based on selected departments and projects
+	 */
+	private void searchEmployees() {
+	    if (connection == null) {
+	        JOptionPane.showMessageDialog(this, 
+	                "Please load a database first using the Fill button.", 
+	                "Search Error", JOptionPane.WARNING_MESSAGE);
+	        return;
 	    }
 
-	    if (department.isEmpty() && project.isEmpty()) {
-	        textAreaEmployee.setText("Database opened, but no data found.\nCheck DB name or tables.");
-	    } else {
-	        textAreaEmployee.setText("Lists loaded successfully.");
+	    try {
+	        // Get selected departments
+	        List<String> selectedDepartments = new ArrayList<>();
+	        int[] deptIndices = lstDepartment.getSelectedIndices();
+	        for (int i : deptIndices) {
+	            selectedDepartments.add(department.getElementAt(i));
+	        }
+
+	        // Get selected projects
+	        List<String> selectedProjects = new ArrayList<>();
+	        int[] projIndices = lstProject.getSelectedIndices();
+	        for (int i : projIndices) {
+	            selectedProjects.add(project.getElementAt(i));
+	        }
+
+	        // Get Not checkbox states
+	        boolean notInDepartments = chckbxNotDept.isSelected();
+	        boolean notInProjects = chckbxNotProject.isSelected();
+
+	        // Search employees using existing method
+	        List<String> employees = searchQuery.searchEmployees(
+	                selectedDepartments, notInDepartments,
+	                selectedProjects, notInProjects,
+	                connection);
+
+	        // Display results
+	        if (employees.isEmpty()) {
+	            textAreaEmployee.setText("No employees found matching the criteria.");
+	        } else {
+	            StringBuilder sb = new StringBuilder();
+	            for (String employee : employees) {
+	                sb.append(employee).append("\n");
+	            }
+	            textAreaEmployee.setText(sb.toString().trim());
+	        }
+	        
+	    } catch (SQLException e) {
+	        JOptionPane.showMessageDialog(this, 
+	                "Error searching employees: " + e.getMessage(), 
+	                "Search Error", JOptionPane.ERROR_MESSAGE);
+	        textAreaEmployee.setText("Search failed.");
 	    }
+	}
+
+	/**
+	 * Clears the employee list, selections, and unchecks Not checkboxes
+	 */
+	private void clearSelections() {
+	    textAreaEmployee.setText("");
+	    lstDepartment.clearSelection();
+	    lstProject.clearSelection();
+	    chckbxNotDept.setSelected(false);
+	    chckbxNotProject.setSelected(false);
 	}
 }
