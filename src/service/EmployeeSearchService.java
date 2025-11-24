@@ -1,4 +1,5 @@
 package src.service;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class EmployeeSearchService {
         StringBuilder sql = new StringBuilder();
         List<String> params = new ArrayList<>();
 
-        sql.append("SELECT e.Fname, e.Lname FROM employee e WHERE 1=1 ");
+        sql.append("SELECT DISTINCT e.Fname, e.Lname FROM employee e WHERE 1=1 ");
 
         // ---------------------------------------------------------
         // DEPARTMENT FILTER (Dname → Dnumber)
