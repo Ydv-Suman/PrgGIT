@@ -9,6 +9,10 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import src.database.DatabaseManager;
+import src.query.EmployeeSearchQuery;
+
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
@@ -32,11 +36,18 @@ public class EmployeeSearchFrame extends JFrame {
 	private DefaultListModel<String> project = new DefaultListModel<String>();
 	private JTextArea textAreaEmployee;
 
-	
+	private EmployeeSearchQuery searchQuery;
+	private DatabaseManager dbManager;
+
 	/**
 	 * Create the frame.
 	 */
 	public EmployeeSearchFrame() {
+
+		searchQuery = new EmployeeSearchQuery();
+		dbManager = new DatabaseManager();
+
+		
 		setTitle("Employee Search");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 347);
@@ -62,18 +73,10 @@ public class EmployeeSearchFrame extends JFrame {
 		 * departments and projects from your entered database name.
 		 */
 		btnDBFill.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String[] dept = {"Headquarters", "Reorganization"};	
-				for(int i = 0; i < dept.length; i++) {
-					department.addElement(dept[i]);
-				}
-				String[] prj = {"ProdoctX", "ProductY", "ProductZ"};
-				for(int j = 0; j < prj.length; j++) {
-					project.addElement(prj[j]);
-				}
-				
-			}
-		});
+            public void actionPerformed(ActionEvent e) {
+                //fillListsFromDatabase();  							// need to create method
+            }
+        });
 		
 		btnDBFill.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		btnDBFill.setBounds(307, 19, 68, 23);

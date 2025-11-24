@@ -15,8 +15,8 @@ PrgGIT/
 │   ├── database/
 │   │   └── DatabaseManager.java        # Handles SQLite connection
 │   │
-│   ├── service/
-│   │   └── EmployeeSearchService.java  # Loads lists, builds queries, searches DB
+│   ├── query/
+│   │   └── EmployeeSearchQuery.java  # Loads lists, builds queries, searches DB
 │
 ├── ui/
 │   └── EmployeeSearchFrame.java    # Main GUI frame

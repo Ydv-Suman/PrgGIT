@@ -8,6 +8,86 @@ import java.util.Objects;
 
 public class EmployeeSearchService {
 
+    Statement stmt;
+    ResultSet result;
+    String query;
+
+    // Load department name
+    public List<String> deparmenteNames(Connection conn) {
+        List<String> departments = new ArrayList<>();
+        stmt=null;
+        result=null;
+
+        try {
+            stmt = conn.createStatement();
+            query = """
+            SELECT Dname 
+            FROM DEPARTMENT 
+            ORDER BY Dname;
+            """;
+            result = stmt.executeQuery(query);
+
+            while (result.next()) {
+                departments.add(result.getString("DepartmentName"));
+            }
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
+        finally {
+            try {
+                if (result != null) result.close();
+            } catch (SQLException e1) {
+                e1.getStackTrace();
+            }
+            try {
+                if (stmt !=null) stmt.close();
+            } catch (SQLException e2) {
+                e2.getStackTrace();
+            }
+        }
+        return departments;
+
+    }
+
+    // load projects names
+    public List<String> projectNames(Connection conn) {
+        List<String> projects = new ArrayList<>();
+        stmt=null;
+        result=null;
+
+        try {
+            stmt = conn.createStatement();
+            query = """
+            SELECT Pname 
+            FROM PROJECT
+            ORDER BY Pname;
+""";
+            result = stmt.executeQuery(query);
+
+            while (result.next()) {
+                projects.add(result.getString("DepartmentName"));
+            }
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
+        finally {
+            try {
+                if (result != null) result.close();
+            } catch (SQLException e1) {
+                e1.getStackTrace();
+            }
+            try {
+                if (stmt !=null) stmt.close();
+            } catch (SQLException e2) {
+                e2.getStackTrace();
+            }
+        }
+        return projects;
+
+    }
+
+
+
     public List<String> searchEmployees(
             List<String> selectedDepartments,
             boolean notInDepartments,
@@ -15,7 +95,6 @@ public class EmployeeSearchService {
             boolean notInProjects,
             Connection conn) throws SQLException {
 
-        // Defensive checks: treat null lists as empty and require a non-null Connection
         selectedDepartments = (selectedDepartments == null) ? Collections.emptyList() : selectedDepartments;
         selectedProjects = (selectedProjects == null) ? Collections.emptyList() : selectedProjects;
         Objects.requireNonNull(conn, "Connection must not be null");
@@ -25,9 +104,8 @@ public class EmployeeSearchService {
 
         sql.append("SELECT DISTINCT e.Fname, e.Lname FROM employee e WHERE 1=1 ");
 
-        // ---------------------------------------------------------
+
         // DEPARTMENT FILTER (Dname → Dnumber)
-        // ---------------------------------------------------------
         if (!selectedDepartments.isEmpty()) {
 
             sql.append(" AND e.Dno ");
@@ -41,9 +119,7 @@ public class EmployeeSearchService {
             params.addAll(selectedDepartments);
         }
 
-        // ---------------------------------------------------------
         // PROJECT FILTER
-        // ---------------------------------------------------------
         if (!selectedProjects.isEmpty()) {
 
             sql.append(" AND e.SSN ");
