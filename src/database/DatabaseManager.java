@@ -9,7 +9,8 @@ public class DatabaseManager {
 
     public static Connection getConnection(String dbName) throws SQLException {
         try {
-            String url = "jdbc:sqlite:" + dbName + ".db";
+            Class.forName("org.sqlite.JDBC");
+            String url = "jdbc:sqlite:resources/" + dbName + ".db";
             connection =  DriverManager.getConnection(url);
             return connection;
         } catch (Exception e) {
