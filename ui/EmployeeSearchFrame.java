@@ -10,8 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import database.DatabaseManager;
-import query.EmployeeSearchQuery;
+import src.database.DatabaseManager;
+import src.query.EmployeeSearchQuery;
 
 import javax.swing.JLabel;
 import java.awt.Font;
