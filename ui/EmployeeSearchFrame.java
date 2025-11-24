@@ -10,8 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import src.database.DatabaseManager;
-import src.query.EmployeeSearchQuery;
+import database.DatabaseManager;
+import query.EmployeeSearchQuery;
 
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -38,6 +38,22 @@ public class EmployeeSearchFrame extends JFrame {
 
 	private EmployeeSearchQuery searchQuery;
 	private DatabaseManager dbManager;
+	
+    /**
+     * Launch the application.
+     */
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    EmployeeSearchFrame frame = new EmployeeSearchFrame();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
 	/**
 	 * Create the frame.
@@ -68,15 +84,15 @@ public class EmployeeSearchFrame extends JFrame {
 		txtDatabase.setColumns(10);
 		
 		JButton btnDBFill = new JButton("Fill");
+		btnDBFill.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                fillListsFromDatabase();
+            }
+        });
 		/**
 		 * The btnDBFill should fill the department and project JList with the 
 		 * departments and projects from your entered database name.
 		 */
-		btnDBFill.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //fillListsFromDatabase();  							// need to create method
-            }
-        });
 		
 		btnDBFill.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		btnDBFill.setBounds(307, 19, 68, 23);
@@ -138,5 +154,35 @@ public class EmployeeSearchFrame extends JFrame {
 		textAreaEmployee = new JTextArea();
 		textAreaEmployee.setBounds(36, 197, 339, 68);
 		contentPane.add(textAreaEmployee);
+	}
+
+	/**
+	 * Loads department and project lists from database
+	 */
+	private void fillListsFromDatabase() {
+
+	    String dbName = txtDatabase.getText().trim();
+
+	    if (dbName.isEmpty()) {
+	        textAreaEmployee.setText("Enter a database name first.");
+	        return;
+	    }
+
+	    department.clear();
+	    project.clear();
+
+	    for (String d : searchQuery.loadDepartments(dbName)) {
+	        department.addElement(d);
+	    }
+
+	    for (String p : searchQuery.loadProjects(dbName)) {
+	        project.addElement(p);
+	    }
+
+	    if (department.isEmpty() && project.isEmpty()) {
+	        textAreaEmployee.setText("Database opened, but no data found.\nCheck DB name or tables.");
+	    } else {
+	        textAreaEmployee.setText("Lists loaded successfully.");
+	    }
 	}
 }
