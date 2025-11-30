@@ -39,6 +39,25 @@ public class EmployeeSearchFrame extends JFrame {
 	private EmployeeSearchQuery searchQuery;
 	private DatabaseManager dbManager;
 	
+<<<<<<< HEAD
+=======
+    /**
+     * Launch the application.
+     */
+	/**
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    EmployeeSearchFrame frame = new EmployeeSearchFrame();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+>>>>>>> c2257cd7459abf2a5c73e8e640f073ad6648602a
 
 	/**
 	 * Create the frame.
