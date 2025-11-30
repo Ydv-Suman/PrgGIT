@@ -47,6 +47,13 @@ No employee results displayed
 
 ---
 
+# Search Behavior Details
+Empty Selection Handling
+If you click "Search" without selecting any departments or projects or check not
+This will show ALL employees
+
+---
+
 # How to Run
 ```
 

@@ -152,6 +152,8 @@ public class EmployeeSearchFrame extends JFrame {
 
         if (dbName.isEmpty()) {
             textAreaEmployee.setText("Enter a database name first.");
+			department.clear();
+        	project.clear();
             return;
         }
 
@@ -199,12 +201,13 @@ public class EmployeeSearchFrame extends JFrame {
         // Get selected departments and projects
         List<String> selectedDepts = lstDepartment.getSelectedValuesList();
         List<String> selectedProjects = lstProject.getSelectedValuesList();
+
         
-        // Get NOT checkbox states - parameter names match your searchQuery method
+        // Get not checkbox states 
         boolean noDept = chckbxNotDept.isSelected();
         boolean noProject = chckbxNotProject.isSelected();
         
-        // Perform search using the updated method signature
+        // Perform search using the updated method
         List<String> employees = searchQuery.searchEmployees(
             selectedDepts, noDept, selectedProjects, noProject, dbName);
         
