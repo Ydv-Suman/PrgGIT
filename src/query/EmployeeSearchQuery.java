@@ -20,20 +20,27 @@ public class EmployeeSearchQuery {
             if(!conn.isClosed()) {
                 System.out.println("Successfully connected to database for departments");
                 stmt = conn.createStatement();
-                String query = """
-                   SELECT Dname FROM DEPARTMENT ORDER BY Dname;
-                   """;
+                String query = "SELECT Dname FROM DEPARTMENT ORDER BY Dname";
                 result = stmt.executeQuery(query);
                 
                 while(result.next()) {
-                    departments.add(result.getString("Dname"));
+                    String deptName = result.getString("Dname");
+                    departments.add(deptName);
+                    System.out.println("Loaded department: " + deptName);
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Error loading departments: " + e.getMessage());
             e.printStackTrace();
         } finally {
+            // Close resources in reverse order
             try {
                 if (result != null) result.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+            try {
+                if (stmt != null) stmt.close();
             } catch (SQLException se) {
                 se.printStackTrace();
             }
@@ -60,21 +67,27 @@ public class EmployeeSearchQuery {
             if(!conn.isClosed()) {
                 System.out.println("Successfully connected to database for projects");
                 stmt = conn.createStatement();
-                String query = """
-                   SELECT Pname FROM PROJECT ORDER BY Pname;
-                   """;
+                String query = "SELECT Pname FROM PROJECT ORDER BY Pname";
                 result = stmt.executeQuery(query);
                 
                 while(result.next()) {
-                    // FIXED: Changed "Dname" to "Pname"
-                    projects.add(result.getString("Pname"));
+                    String projectName = result.getString("Pname");
+                    projects.add(projectName);
+                    System.out.println("Loaded project: " + projectName);
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Error loading projects: " + e.getMessage());
             e.printStackTrace();
         } finally {
+            // Close resources in reverse order
             try {
                 if (result != null) result.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+            try {
+                if (stmt != null) stmt.close();
             } catch (SQLException se) {
                 se.printStackTrace();
             }
@@ -90,7 +103,8 @@ public class EmployeeSearchQuery {
     }
 
     // Query to search the employee name based on the selection
-    public List<String> searchEmployees(List<String> selectedDepartments, boolean noDepartment, List<String> selectedProjects, boolean noProjects, String dbName) {
+    public List<String> searchEmployees(List<String> selectedDepartments, boolean noDepartment, 
+                                      List<String> selectedProjects, boolean noProjects, String dbName) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet result = null;
@@ -108,11 +122,7 @@ public class EmployeeSearchQuery {
                 StringBuilder sql = new StringBuilder();
                 List<String> params = new ArrayList<>();
 
-                sql.append("""
-                    SELECT DISTINCT e.Fname, e.Lname 
-                    FROM EMPLOYEE e 
-                    WHERE 1=1 
-                    """);
+                sql.append("SELECT DISTINCT e.Fname, e.Lname FROM EMPLOYEE e WHERE 1=1 ");
 
                 // Department Filter
                 if (!selectedDepartments.isEmpty()) {
@@ -132,13 +142,7 @@ public class EmployeeSearchQuery {
                     if (noProjects) {
                         sql.append("NOT ");
                     }
-                    sql.append("""
-                        IN (
-                            SELECT w.Essn 
-                            FROM WORKS_ON w 
-                            JOIN PROJECT p ON p.Pnumber = w.Pno 
-                            WHERE p.Pname IN ("""
-                        )
+                    sql.append("IN (SELECT w.Essn FROM WORKS_ON w JOIN PROJECT p ON p.Pnumber = w.Pno WHERE p.Pname IN (")
                        .append(makePlaceholders(selectedProjects.size()))
                        .append("))");
                     params.addAll(selectedProjects);
@@ -164,10 +168,17 @@ public class EmployeeSearchQuery {
                 System.out.println("Total employees found: " + employees.size());
             }
         } catch (SQLException e) {
+            System.err.println("Error searching employees: " + e.getMessage());
             e.printStackTrace();
         } finally {
+            // Close resources in reverse order
             try {
                 if (result != null) result.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+            try {
+                if (pstmt != null) pstmt.close();
             } catch (SQLException se) {
                 se.printStackTrace();
             }
