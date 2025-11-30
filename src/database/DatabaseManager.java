@@ -19,7 +19,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void closeconnection() {
+    public static void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();

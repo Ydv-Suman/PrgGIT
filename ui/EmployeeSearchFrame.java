@@ -10,8 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import database.DatabaseManager;
-import query.EmployeeSearchQuery;
+import src.database.DatabaseManager;
+import src.query.EmployeeSearchQuery;
 
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -39,21 +39,6 @@ public class EmployeeSearchFrame extends JFrame {
 	private EmployeeSearchQuery searchQuery;
 	private DatabaseManager dbManager;
 	
-    /**
-     * Launch the application.
-     */
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    EmployeeSearchFrame frame = new EmployeeSearchFrame();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
 	/**
 	 * Create the frame.
@@ -154,7 +139,33 @@ public class EmployeeSearchFrame extends JFrame {
 		textAreaEmployee = new JTextArea();
 		textAreaEmployee.setBounds(36, 197, 339, 68);
 		contentPane.add(textAreaEmployee);
+
+		// Make Department list scrollable
+		lstDepartment = new JList<String>(department);
+		lstDepartment.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		scrollDepartment = new JScrollPane(lstDepartment);
+		scrollDepartment.setBounds(36, 84, 172, 40);
+		contentPane.add(scrollDepartment);
+		
+		// Make Project list scrollable  
+		lstProject = new JList<String>(project);
+		lstProject.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		scrollProject = new JScrollPane(lstProject);
+		scrollProject.setBounds(225, 84, 150, 42);
+		contentPane.add(scrollProject);
+		
+		// Make Employee text area scrollable
+		textAreaEmployee = new JTextArea();
+		JScrollPane scrollEmployee = new JScrollPane(textAreaEmployee);
+		scrollEmployee.setBounds(36, 197, 339, 68);
+		contentPane.add(scrollEmployee);
+		
+		// Enable multiple selection for lists
+		lstDepartment.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		lstProject.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	}
+
+	
 
 	/**
 	 * Loads department and project lists from database

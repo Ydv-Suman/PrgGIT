@@ -1,89 +1,72 @@
-package src.service;
+package src.query;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import java.util.Objects;
+import src.database.DatabaseManager;
 
-public class EmployeeSearchService {
+public class EmployeeSearchQuery {
 
-    Statement stmt;
-    ResultSet result;
-    String query;
+    // Load department names from database
+    public List<String> loadDepartments(String dbName) {
+        List<String> departments = new ArrayList<>();
+        try {
+            Connection conn = DatabaseManager.getConnection(dbName);
+            departments = deparmenteNames(conn);
+            DatabaseManager.closeConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return departments;
+    }
+
+    // Load project names from database
+    public List<String> loadProjects(String dbName) {
+        List<String> projects = new ArrayList<>();
+        try {
+            Connection conn = DatabaseManager.getConnection(dbName);
+            projects = projectNames(conn);
+            DatabaseManager.closeConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return projects;
+    }
 
     // Load department name
     public List<String> deparmenteNames(Connection conn) {
         List<String> departments = new ArrayList<>();
-        stmt=null;
-        result=null;
+        String query = "SELECT Dname FROM DEPARTMENT ORDER BY Dname";
 
-        try {
-            stmt = conn.createStatement();
-            query = """
-            SELECT Dname 
-            FROM DEPARTMENT 
-            ORDER BY Dname;
-            """;
-            result = stmt.executeQuery(query);
+        try (Statement stmt = conn.createStatement();
+             ResultSet result = stmt.executeQuery(query)) {
 
             while (result.next()) {
-                departments.add(result.getString("DepartmentName"));
+                departments.add(result.getString("Dname"));
             }
-        } catch (Exception e) {
-            e.getStackTrace();
-        }
-        finally {
-            try {
-                if (result != null) result.close();
-            } catch (SQLException e1) {
-                e1.getStackTrace();
-            }
-            try {
-                if (stmt !=null) stmt.close();
-            } catch (SQLException e2) {
-                e2.getStackTrace();
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return departments;
-
     }
 
-    // load projects names
+    // Load project names
     public List<String> projectNames(Connection conn) {
         List<String> projects = new ArrayList<>();
-        stmt=null;
-        result=null;
+        String query = "SELECT Pname FROM PROJECT ORDER BY Pname";
 
-        try {
-            stmt = conn.createStatement();
-            query = """
-            SELECT Pname 
-            FROM PROJECT
-            ORDER BY Pname;
-""";
-            result = stmt.executeQuery(query);
+        try (Statement stmt = conn.createStatement();
+             ResultSet result = stmt.executeQuery(query)) {
 
             while (result.next()) {
-                projects.add(result.getString("DepartmentName"));
+                projects.add(result.getString("Pname"));
             }
-        } catch (Exception e) {
-            e.getStackTrace();
-        }
-        finally {
-            try {
-                if (result != null) result.close();
-            } catch (SQLException e1) {
-                e1.getStackTrace();
-            }
-            try {
-                if (stmt !=null) stmt.close();
-            } catch (SQLException e2) {
-                e2.getStackTrace();
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return projects;
-
     }
 
 
